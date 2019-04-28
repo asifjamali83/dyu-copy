@@ -1,0 +1,247 @@
+# -*- coding: utf-8 -*-
+
+import LINETCR
+from LINETCR.lib.curve.ttypes import *
+from datetime import datetime
+import time,random,sys,json,codecs,threading,glob,re
+
+cl = LINETCR.LINE()
+cl.login(qr=True)
+cl.loginResult()
+
+ki = LINETCR.LINE()
+ki.login(token="Em9VIkILW2CwGApb7j36.HkD38p8XHYNXC/RJ9Xo2HG.EfTYFgHm2IjYv6yqEElm0UFbXTkvk2avZqV8pCwYjEE=")
+ki.loginResult()
+
+ki2 = LINETCR.LINE()
+ki2.login(token="Emp84Zeb9fl9CC9lBMu5.9t4wrnXPyY6m3qm/g3f4Pq.G6DIl7V1tDxhiNzV187nsLcdyXLxifgMgzdwY3aCG5I=")
+ki2.loginResult()
+
+ki3 = LINETCR.LINE()
+ki3.login(token="EmWzkBPZWmVfiBQbNHw4.nhCM9bm527bW1pw6cY359a.vbuam3vaByorGM7axkyDrrFhmL2s8V/oOvrUOKAk0Rg=")
+ki3.loginResult()
+
+ki4 = LINETCR.LINE()
+ki4.login(token="EmCc77A5ZHufod7zVN48.va1X7L9l5o27JChRLI54sa.2lGORWOJISLhjE51NBNgNMroJq0xVFJ7Ffm4GogVs4Y=")
+ki4.loginResult()
+
+print "login success"
+reload(sys)
+sys.setdefaultencoding('utf-8')
+helpMessage ="""=========[Command]=========
+•[Mybot]
+•[Me]
+•[Mid]
+•[Gid]
+•[All mid]
+•[TL:「Text]
+•[Mybio:「Text」]
+•[Cn:「Text」]
+•[Mid:「mid」]
+•[Contact 「On/Off」]
+•[Auto Join 「On/Off」]
+•[Add 「On/Off」]
+•[Share 「On/Off」]
+•[Jam 「On/Off」]
+•[Leave 「On/Off」]
+•[Group Cancel:]
+•[Jam Say:「Nama」]
+•[Update]
+•[Banlist]
+•[Pesan Cek]
+•[Blocklist]
+•[Pesan set:「Text」]
+•[Groups]
+•[Get contact:「mid」]
+====[Command In Groups]====
+●[Kick:「mid」]
+●[Invite:「mid」]
+●[Cancel]
+●[Ourl]
+●[Mbl]
+●[Curl]
+●[Protect 「On/Off」]
+●[Qr 「On/Off」]
+●[Cancel 「On/Off」]
+●[Invite 「On/Off」]
+●[Ginfo]
+●[Gn 「Nama Grup」]
+●[Album:「ID」]
+●[Gurl 「ID」]
+●[Nk「nama」]
+●[Ban]
+●[Unban]
+"""
+KAC=[cl,ki,ki2,ki3,ki4]
+KXX=[ki,ki2,ki3,ki4]
+mid = cl.getProfile().mid
+kimid = ki.getProfile().mid
+ki2mid = ki2.getProfile().mid
+ki3mid = ki3.getProfile().mid
+ki4mid = ki4.getProfile().mid
+Bots=[mid,kimid,ki2mid,ki3mid]
+admsa = "u28a1c7da6625d87f61c5f15b09b4167a"
+
+wait = {
+    'contact':False,
+    'autoJoin':True,
+    'autoCancel':{"on":True,"members":1},
+    'leaveRoom':True,
+    'timeline':False,
+    'autoAdd':False,
+    'message':"""
+Cie fans ngeAdd
+""",
+ "lang":"JP",
+    "comment":"""
+Thanks For Add Me
+""",
+    "commentOn":False,
+    "commentBlack":{},
+    "wblack":False,
+    "dblack":False,
+    "clock":False,
+    "cName":"􀰂􀰂🚬􀂳􀰂Choiry􏿿",
+    "blacklist":{},
+    "wblacklist":False,
+    "dblacklist":False,
+    "protect":False,
+    "cancelprotect":False,
+    "inviteprotect":False,
+    "linkprotect":False,
+   }
+
+wait2 = {
+    'readPoint':{},
+    'readMember':{},
+    'setTime':{},
+    'ROM':{}
+    }
+
+setTime = {}
+setTime = wait2['setTime']
+
+def cms(string, commands): #/XXX, >XXX, ;XXX, ^XXX, %XXX, $XXX...
+    tex = ["+","@","/",">",";","^","%","$","＾","サテラ:","サテラ:","サテラ：","サテラ："]
+    for texX in tex:
+        for command in commands:
+            if string ==command:
+                return True
+    return False
+
+def bot(op):
+    try:
+        if op.type == 0:
+            return
+        if op.type == 13:
+            if mid in op.param3:
+                G = cl.getGroup(op.param1)
+                if wait["autoJoin"] == True:
+                    if wait["autoCancel"]["on"] == True:
+                        if len(G.members) <= wait["autoCancel"]["members"]:
+                            cl.rejectGroupInvitation(op.param1)
+                        else:
+                            cl.acceptGroupInvitation(op.param1)
+                    else:
+                        cl.acceptGroupInvitation(op.param1)
+                elif wait["autoCancel"]["on"] == True:
+                    if len(G.members) <= wait["autoCancel"]["members"]:
+                        cl.rejectGroupInvitation(op.param1)
+            else:
+                Inviter = op.param3.replace("",',')
+                InviterX = Inviter.split(",")
+                matched_list = []
+                for tag in wait["blacklist"]:
+                    matched_list+=filter(lambda str: str == tag, InviterX)
+                if matched_list == []:
+                    pass
+                else:
+cl.cancelGroupInvitation(op.param1, matched_list)
+        if op.type == 19:
+            if mid in op.param3:
+                wait["blacklist"][op.param2] = True
+        if op.type == 22:
+            if wait["leaveRoom"] == True:
+                cl.leaveRoom(op.param1)
+        if op.type == 24:
+            if wait["leaveRoom"] == True:
+                cl.leaveRoom(op.param1)
+        if op.type == 26:
+            msg = op.message
+            if msg.toType == 0:
+                msg.to = msg.from_
+                if msg.from_ == "u28a1c7da6625d87f61c5f15b09b4167a":
+                    if "join:" in msg.text:
+                        list_ = msg.text.split(":")
+                        try:
+                            cl.acceptGroupInvitationByTicket(list_[1],list_[2])
+                            G = cl.getGroup(list_[1])
+                            G.preventJoinByTicket = True
+                            cl.updateGroup(G)
+                        except:
+                            cl.sendText(msg.to,"error")
+            if msg.toType == 1:
+                if wait["leaveRoom"] == True:
+                    cl.leaveRoom(msg.to)
+        if op.type == 25:
+msg = op.message
+            if msg.contentType == 13:
+                if wait["wblack"] == True:
+                    if msg.contentMetadata["mid"] in wait["commentBlack"]:
+                        cl.sendText(msg.to,"sudah masuk daftar hitam")
+                        wait["wblack"] = False
+                    else:
+                        wait["commentBlack"][msg.contentMetadata["mid"]] = True
+                        wait["wblack"] = False
+                        cl.sendText(msg.to,"Itu tidak berkomentar")
+                elif wait["dblack"] == True:
+                    if msg.contentMetadata["mid"] in wait["commentBlack"]:
+                        del wait["commentBlack"][msg.contentMetadata["mid"]]
+                        cl.sendText(msg.to,"Done")
+                        wait["dblack"] = False
+                    else:
+                        wait["dblack"] = False
+                        cl.sendText(msg.to,"Tidak ada dalam daftar hitam")
+                elif wait["wblacklist"] == True:
+                    if msg.contentMetadata["mid"] in wait["blacklist"]:
+                        cl.sendText(msg.to,"sudah masuk daftar hitam")
+                        wait["wblacklist"] = False
+                    else:
+wait["blacklist"][msg.contentMetadata["mid"]] = True
+                        wait["wblacklist"] = False
+                        cl.sendText(msg.to,"Done")
+                elif wait["dblacklist"] == True:
+                    if msg.contentMetadata["mid"] in wait["blacklist"]:
+                        del wait["blacklist"][msg.contentMetadata["mid"]]
+                        cl.sendText(msg.to,"Done")
+                        wait["dblacklist"] = False
+                    else:
+                        wait["dblacklist"] = False
+                        cl.sendText(msg.to,"Done")
+                elif wait["contact"] == True:
+                    msg.contentType = 0
+                    cl.sendText(msg.to,msg.contentMetadata["mid"])
+                    if 'displayName' in msg.contentMetadata:
+                        contact = cl.getContact(msg.contentMetadata["mid"])
+                        try:
+cu = cl.channel.getCover(msg.contentMetadata["mid"])
+                        except:
+                            cu = ""
+                        cl.sendText(msg.to,"[displayName]:\n" + msg.contentMetadata["displayName"] + "\n[mid]:\n" + msg.contentMetadata["mid"] + "\n[statusMessage]:\n" + contact.statusMessage + "\n[pictureStatus]:\nhttp://dl.profile.line-cdn.net/" + contact.pictureStatus + "\n[coverURL]:\n" + str(cu))
+                    else:
+                        contact = cl.getContact(msg.contentMetadata["mid"])
+                        try:
+                            cu = cl.channel.getCover(msg.contentMetadata["mid"])
+                        except:
+                            cu = ""
+                        cl.sendText(msg.to,"[displayName]:\n" + contact.displayName + "\n[mid]:\n" + msg.contentMetadata["mid"] + "\n[statusMessage]:\n" + contact.statusMessage + "\n[pictureStatus]:\nhttp://dl.profile.line-cdn.net/" + contact.pictureStatus + "\n[coverURL]:\n" + str(cu))
+            elif msg.contentType == 16:
+                if wait["timeline"] == True:
+                    msg.contentType = 0
+                    if wait["lang"] == "JP":
+                        msg.text = "menempatkan URL\n" + msg.contentMetadata["postEndUrl"]
+                    else:
+                        msg.text = "URL\n" + msg.contentMetadata["postEndUrl"]
+                    cl.sendText(msg.to,msg.text)
+            elif msg.text is None:
+                return
